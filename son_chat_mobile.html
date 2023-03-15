@@ -39,24 +39,24 @@
 
             for (let i = 0; i < message.length; i++) {
                 const charCode = message.charCodeAt(i);
-                encodedMessage += String.fromCharCode(charCode + 3);
+                encodedMessage += String.fromCharCode(charCode + (i % 5));
+                if (i < message.length - 1) {
+                    encodedMessage += "C.U.C.K";
+                }
             }
 
-            encodedMessage = encodedMessage.split("").reverse().join("");
-            encodedMessage = encodedMessage.replace(/c/gi, "c.u.c.k");
             document.getElementById("result").value = "Encoded message: " + encodedMessage;
         }
 
         function decode() {
             let encodedMessage = document.getElementById("message").value;
-            encodedMessage = encodedMessage.replace(/c.u.c.k/gi, "c");
-            encodedMessage = encodedMessage.split("").reverse().join("");
+            encodedMessage = encodedMessage.split("C.U.C.K").join("");
 
             let decodedMessage = "";
 
             for (let i = 0; i < encodedMessage.length; i++) {
                 const charCode = encodedMessage.charCodeAt(i);
-                decodedMessage += String.fromCharCode(charCode - 3);
+                decodedMessage += String.fromCharCode(charCode - (i % 5));
             }
 
             document.getElementById("result").value = "Decoded message: " + decodedMessage;
