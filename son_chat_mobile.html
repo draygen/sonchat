@@ -1,61 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Encoding and Decoding App</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    input, textarea, button {
-      width: 100%;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Encoder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        button {
+            margin: 10px 0;
+        }
+
+        textarea {
+            width: 100%;
+            resize: none;
+        }
+    </style>
 </head>
 <body>
-  <h1>Encoding and Decoding App</h1>
+    <h1>Custom Encoder</h1>
+    <p>Enter your message:</p>
+    <textarea id="message" rows="4"></textarea>
+    <br>
+    <button onclick="encode()">Encode</button>
+    <button onclick="decode()">Decode</button>
+    <p>Result:</p>
+    <textarea id="result" rows="4" readonly></textarea>
 
-  <h2>Input</h2>
-  <textarea id="input" rows="5"></textarea>
+    <script>
+        function encode() {
+            const message = document.getElementById("message").value;
+            let encodedMessage = "";
 
-  <h2>Encoded/Decoded</h2>
-  <textarea id="output" rows="5" readonly></textarea>
+            for (let i = 0; i < message.length; i++) {
+                const charCode = message.charCodeAt(i);
+                encodedMessage += String.fromCharCode(charCode + 3);
+            }
 
-  <button id="encode">Encode</button>
-  <button id="decode">Decode</button>
+            encodedMessage = encodedMessage.split("").reverse().join("");
+            encodedMessage = encodedMessage.replace(/c/gi, "c.u.c.k");
+            document.getElementById("result").value = "Encoded message: " + encodedMessage;
+        }
 
-  <script>
-    function encode(text) {
-      const shift = 3;
-      let encoded = '';
-      for (let i = 0; i < text.length; i++) {
-        encoded += String.fromCharCode(text.charCodeAt(i) + shift);
-      }
-      return encoded;
-    }
+        function decode() {
+            let encodedMessage = document.getElementById("message").value;
+            encodedMessage = encodedMessage.replace(/c.u.c.k/gi, "c");
+            encodedMessage = encodedMessage.split("").reverse().join("");
 
-    function decode(text) {
-      const shift = 3;
-      let decoded = '';
-      for (let i = 0; i < text.length; i++) {
-        decoded += String.fromCharCode(text.charCodeAt(i) - shift);
-      }
-      return decoded;
-    }
+            let decodedMessage = "";
 
-    document.getElementById("encode").addEventListener("click", function() {
-      const input = document.getElementById("input").value;
-      const output = encode(input);
-      document.getElementById("output").value = output;
-    });
+            for (let i = 0; i < encodedMessage.length; i++) {
+                const charCode = encodedMessage.charCodeAt(i);
+                decodedMessage += String.fromCharCode(charCode - 3);
+            }
 
-    document.getElementById("decode").addEventListener("click", function() {
-      const input = document.getElementById("input").value;
-      const output = decode(input);
-      document.getElementById("output").value = output;
-    });
-  </script>
+            document.getElementById("result").value = "Decoded message: " + decodedMessage;
+        }
+    </script>
 </body>
 </html>
