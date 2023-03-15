@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encoding and Decoding App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    input, textarea, button {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Encoding and Decoding App</h1>
+
+  <h2>Input</h2>
+  <textarea id="input" rows="5"></textarea>
+
+  <h2>Encoded/Decoded</h2>
+  <textarea id="output" rows="5" readonly></textarea>
+
+  <button id="encode">Encode</button>
+  <button id="decode">Decode</button>
+
+  <script>
+    function encode(text) {
+      const shift = 3;
+      let encoded = '';
+      for (let i = 0; i < text.length; i++) {
+        encoded += String.fromCharCode(text.charCodeAt(i) + shift);
+      }
+      return encoded;
+    }
+
+    function decode(text) {
+      const shift = 3;
+      let decoded = '';
+      for (let i = 0; i < text.length; i++) {
+        decoded += String.fromCharCode(text.charCodeAt(i) - shift);
+      }
+      return decoded;
+    }
+
+    document.getElementById("encode").addEventListener("click", function() {
+      const input = document.getElementById("input").value;
+      const output = encode(input);
+      document.getElementById("output").value = output;
+    });
+
+    document.getElementById("decode").addEventListener("click", function() {
+      const input = document.getElementById("input").value;
+      const output = decode(input);
+      document.getElementById("output").value = output;
+    });
+  </script>
+</body>
+</html>
