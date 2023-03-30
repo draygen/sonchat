@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Son Chat App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        button {
+            margin: 10px 0;
+        }
+
+        textarea {
+            width: 100%;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Son Chat App</h1>
+    <p>Enter your message:</p>
+    <textarea id="message" rows="4"></textarea>
+    <br>
+    <button onclick="encode()">Encode</button>
+    <button onclick="decode()">Decode</button>
+    <button onclick="copyToClipboard()">Copy</button>
+    <p>Result:</p>
+    <textarea id="result" rows="4" readonly></textarea>
+
+    <script>
+        function encode() {
+            const message = document.getElementById("message").value;
+            let encodedMessage = "";
+
+            for (let i = 0; i < message.length; i++) {
+                const charCode = message.charCodeAt(i);
+                encodedMessage += String.fromCharCode(charCode + (i % 5));
+                if (i < message.length - 1) {
+                    encodedMessage += "C.U.C.K";
+                }
+            }
+
+            document.getElementById("result").value = "Encoded message: " + encodedMessage;
+        }
+
+        function decode() {
+            let encodedMessage = document.getElementById("message").value;
+            encodedMessage = encodedMessage.split("C.U.C.K").join("");
+
+            let decodedMessage = "";
+
+            for (let i = 0; i < encodedMessage.length; i++) {
+                const charCode = encodedMessage.charCodeAt(i);
+                decodedMessage += String.fromCharCode(charCode - (i % 5));
+            }
+
+            document.getElementById("result").value = "Decoded message: " + decodedMessage;
+        }
+
+        function copyToClipboard() {
+            const result = document.getElementById("result");
+            result.select();
+            document.execCommand("copy");
+            window.getSelection().removeAllRanges();
+        }
+    </script>
+</body>
+</html>
