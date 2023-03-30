@@ -3,63 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Encoder</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        button {
-            margin: 10px 0;
-        }
-
-        textarea {
-            width: 100%;
-            resize: none;
-        }
-    </style>
+    <title>Son Chat App</title>
 </head>
 <body>
-    <h1>Custom Encoder</h1>
-    <p>Enter your message:</p>
-    <textarea id="message" rows="4"></textarea>
+    <h1>Son Chat App</h1>
+    <p>Enter your text below to encode it with custom encoding:</p>
+    <textarea id="inputText" rows="5" cols="50"></textarea>
     <br>
-    <button onclick="encode()">Encode</button>
-    <button onclick="decode()">Decode</button>
-    <p>Result:</p>
-    <textarea id="result" rows="4" readonly></textarea>
+    <button onclick="encodeText()">Encode</button>
+    <br><br>
+    <p>Encoded text:</p>
+    <textarea id="outputText" rows="5" cols="50" readonly></textarea>
+    <br><br>
+    <button onclick="decodeText()">Decode</button>
+    <br><br>
+    <p>Decoded text:</p>
+    <textarea id="decodedText" rows="5" cols="50" readonly></textarea>
+    <br><br>
+    <button onclick="copyToClipboard()">Copy</button>
 
     <script>
-        function encode() {
-            const message = document.getElementById("message").value;
-            let encodedMessage = "";
+        const customEncoding = "ｻﾊｰ｢｣ﾂｴｦ･､ﾃｲﾔｪﾜｼﾝﾁﾄｸﾅﾈﾉｿﾀﾕﾞｽﾛﾘﾊﾝﾟｧｨｩｫｬｭｮｯｱｲｳｴｵ";
+        let caseInfo = '';
+        
+        function encodeText() {
+            const inputText = document.getElementById('inputText').value;
+            let outputText = '';
+            caseInfo = '';
 
-            for (let i = 0; i < message.length; i++) {
-                const charCode = message.charCodeAt(i);
-                encodedMessage += String.fromCharCode(charCode + (i % 5));
-                if (i < message.length - 1) {
-                    encodedMessage += "C.U.C.K";
+            for (let i = 0; i < inputText.length; i++) {
+                const charCode = inputText.charCodeAt(i);
+                if (charCode >= 97 && charCode <= 122) {
+                    outputText += customEncoding[charCode - 97];
+                    caseInfo += 'l';
+                } else if (charCode >= 65 && charCode <= 90) {
+                    outputText += customEncoding[charCode - 65];
+                    caseInfo += 'u';
+                } else {
+                    outputText += inputText[i];
+                    caseInfo += '-';
                 }
             }
 
-            document.getElementById("result").value = "Encoded message: " + encodedMessage;
+            document.getElementById('outputText').value = outputText;
         }
 
-        function decode() {
-            let encodedMessage = document.getElementById("message").value;
-            encodedMessage = encodedMessage.split("C.U.C.K").join("");
+        function decodeText() {
+            const encodedText = document.getElementById('outputText').value;
+            let decodedText = '';
 
-            let decodedMessage = "";
-
-            for (let i = 0; i < encodedMessage.length; i++) {
-                const charCode = encodedMessage.charCodeAt(i);
-                decodedMessage += String.fromCharCode(charCode - (i % 5));
+            for (let i = 0; i < encodedText.length; i++) {
+                const index = customEncoding.indexOf(encodedText[i]);
+                if (index !== -1) {
+                    if (caseInfo[i] === 'u') {
+                        decodedText += String.fromCharCode(index + 65);
+                    } else {
+                        decodedText += String.fromCharCode(index + 97);
+                    }
+                } else {
+                    decodedText += encodedText[i];
+                }
             }
 
-            document.getElementById("result").value = "Decoded message: " + decodedMessage;
+            document.getElementById('decodedText').value = decodedText;
+        }
+
+        function copyToClipboard() {
+            const outputText = document.getElementById('outputText').value;
+            const decodedText = document.getElementById('decodedText').value;
+            const temporaryElement = document.createElement('textarea');
+
+            if (outputText) {
+                temporaryElement.value = outputText;
+            } else {
+                temporaryElement.value = decodedText;
+            }
+
+            document.body.appendChild(temporaryElement);
+            temporaryElement.select();
+            document.execCommand("copy");
+            document.body.removeChild(temporaryElement);
         }
     </script>
 </body>
