@@ -63,12 +63,17 @@
             document.getElementById("result").value = "Decoded message: " + decodedMessage;
         }
 
-        function copyToClipboard() {
+          function copyToClipboard() {
             const result = document.getElementById("result");
-            result.select();
+            const message = result.value.replace(/^(Encoded|Decoded) message: /, '');
+            const temporaryElement = document.createElement('textarea');
+            temporaryElement.value = message;
+            document.body.appendChild(temporaryElement);
+            temporaryElement.select();
             document.execCommand("copy");
-            window.getSelection().removeAllRanges();
+            document.body.removeChild(temporaryElement);
         }
+
     </script>
 </body>
 </html>
