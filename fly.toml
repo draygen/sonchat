@@ -2,7 +2,4 @@ app = "sonchat"
 primary_region = "bos"
 
 [build]
-builtin = "static"
-
-[static]
-web_root = "."
+  dockerfile = "Dockerfile"
