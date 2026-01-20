@@ -14,8 +14,18 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 3000;
 
+// Health check
+app.get('/health', (req, res) => {
+  res.send('OK');
+});
+
 // Serve static files
 app.use(express.static(path.join(__dirname)));
+
+// Explicit root route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // Store recent messages (in-memory, clears on restart for privacy)
 const messages = [];
