@@ -81,6 +81,62 @@
             font-weight: 600;
         }
 
+        .user-btn.other-btn {
+            border-color: #7b2cbf;
+        }
+
+        .user-btn .avatar-placeholder {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7b2cbf, #00d4ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            border: 3px solid #00d4ff;
+        }
+
+        #custom-name-input {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        #custom-name-input input {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            width: 250px;
+            text-align: center;
+        }
+
+        #custom-name-input input:focus {
+            border-color: #00d4ff;
+        }
+
+        #custom-name-input button {
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        #custom-name-input button:hover {
+            transform: scale(1.05);
+        }
+
         /* Chat Screen */
         #chat-screen {
             display: none;
@@ -165,6 +221,17 @@
 
         .message.revealed .decoded {
             display: block;
+        }
+
+        .message .sender {
+            font-size: 0.75rem;
+            color: #00d4ff;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .message.sent .sender {
+            display: none;
         }
 
         .message .time {
@@ -261,15 +328,23 @@
                 <img src="Jared.jpg" alt="Jared">
                 <span>Jared</span>
             </div>
+            <div class="user-btn other-btn" onclick="showCustomNameInput()">
+                <div class="avatar-placeholder">?</div>
+                <span>Other</span>
+            </div>
+        </div>
+        <div id="custom-name-input">
+            <input type="text" id="custom-name" placeholder="Enter your name..." maxlength="20">
+            <button onclick="joinWithCustomName()">Join Chat</button>
         </div>
     </div>
 
     <!-- Chat Screen -->
     <div id="chat-screen">
         <div class="chat-header">
-            <img id="other-avatar" src="" alt="">
+            <div class="avatar-placeholder" style="width:45px;height:45px;font-size:1.2rem;margin-right:15px;border-width:2px;">&#128172;</div>
             <div class="chat-header-info">
-                <h2 id="other-name"></h2>
+                <h2>Group Chat</h2>
                 <div class="status" id="status-text">Online</div>
             </div>
         </div>
@@ -318,14 +393,30 @@
             return originalText;
         }
 
+        function showCustomNameInput() {
+            document.getElementById('custom-name-input').style.display = 'flex';
+            document.getElementById('custom-name').focus();
+        }
+
+        function joinWithCustomName() {
+            const name = document.getElementById('custom-name').value.trim();
+            if (name) {
+                selectUser(name);
+            }
+        }
+
+        // Allow Enter key to submit custom name
+        document.getElementById('custom-name').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                joinWithCustomName();
+            }
+        });
+
         function selectUser(user) {
             currentUser = user;
-            otherUser = user === 'Dad' ? 'Jared' : 'Dad';
 
             document.getElementById('user-select').style.display = 'none';
             document.getElementById('chat-screen').style.display = 'flex';
-            document.getElementById('other-avatar').src = otherUser + '.jpg';
-            document.getElementById('other-name').textContent = otherUser;
 
             // Focus input
             document.getElementById('message-input').focus();
@@ -339,9 +430,11 @@
         function addMessage(msg, prepend = false) {
             const messagesDiv = document.getElementById('messages');
             const div = document.createElement('div');
-            div.className = 'message ' + (msg.user === currentUser ? 'sent' : 'received');
+            const isSent = msg.user === currentUser;
+            div.className = 'message ' + (isSent ? 'sent' : 'received');
 
             div.innerHTML = `
+                <div class="sender">${msg.user}</div>
                 <div class="encoded">${msg.encoded}</div>
                 <div class="decoded">${msg.text}</div>
                 <div class="time">${formatTime(msg.timestamp)}</div>
