@@ -185,8 +185,45 @@
             gap: 15px;
         }
 
+        .message-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            max-width: 85%;
+        }
+
+        .message-row.sent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-row.received {
+            align-self: flex-start;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .message-avatar-placeholder {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7b2cbf, #00d4ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
         .message {
-            max-width: 80%;
+            max-width: 100%;
             padding: 12px 16px;
             border-radius: 18px;
             position: relative;
@@ -194,14 +231,12 @@
             transition: all 0.2s ease;
         }
 
-        .message.sent {
-            align-self: flex-end;
+        .message-row.sent .message {
             background: linear-gradient(135deg, #7b2cbf, #9d4edd);
             border-bottom-right-radius: 5px;
         }
 
-        .message.received {
-            align-self: flex-start;
+        .message-row.received .message {
             background: rgba(255,255,255,0.1);
             border-bottom-left-radius: 5px;
         }
@@ -230,9 +265,8 @@
             font-weight: 600;
         }
 
-        .message.sent .sender {
+        .message-row.sent .message .sender {
             color: #e0b0ff;
-            text-align: right;
         }
 
         .message .time {
@@ -428,29 +462,41 @@
             return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
 
+        function getAvatarHtml(user) {
+            if (user === 'Dad' || user === 'Jared') {
+                return `<img class="message-avatar" src="${user}.jpg" alt="${user}">`;
+            } else {
+                const initial = user.charAt(0).toUpperCase();
+                return `<div class="message-avatar-placeholder">${initial}</div>`;
+            }
+        }
+
         function addMessage(msg, prepend = false) {
             const messagesDiv = document.getElementById('messages');
-            const div = document.createElement('div');
+            const row = document.createElement('div');
             const isSent = msg.user === currentUser;
-            div.className = 'message ' + (isSent ? 'sent' : 'received');
+            row.className = 'message-row ' + (isSent ? 'sent' : 'received');
 
-            div.innerHTML = `
-                <div class="sender">${msg.user}</div>
-                <div class="encoded">${msg.encoded}</div>
-                <div class="decoded">${msg.text}</div>
-                <div class="time">${formatTime(msg.timestamp)}</div>
+            row.innerHTML = `
+                ${getAvatarHtml(msg.user)}
+                <div class="message">
+                    <div class="sender">${msg.user}</div>
+                    <div class="encoded">${msg.encoded}</div>
+                    <div class="decoded">${msg.text}</div>
+                    <div class="time">${formatTime(msg.timestamp)}</div>
+                </div>
             `;
 
-            div.onclick = () => div.classList.toggle('revealed');
+            row.querySelector('.message').onclick = () => row.querySelector('.message').classList.toggle('revealed');
 
             if (showDecoded) {
-                div.classList.add('revealed');
+                row.querySelector('.message').classList.add('revealed');
             }
 
             if (prepend) {
-                messagesDiv.insertBefore(div, messagesDiv.firstChild);
+                messagesDiv.insertBefore(row, messagesDiv.firstChild);
             } else {
-                messagesDiv.appendChild(div);
+                messagesDiv.appendChild(row);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             }
         }
@@ -479,7 +525,7 @@
             btn.textContent = showDecoded ? 'Show Encoded' : 'Show Decoded';
             btn.classList.toggle('active', showDecoded);
 
-            document.querySelectorAll('.message').forEach(msg => {
+            document.querySelectorAll('.message-row .message').forEach(msg => {
                 msg.classList.toggle('revealed', showDecoded);
             });
         }
