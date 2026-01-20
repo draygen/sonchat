@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SonChat</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* User Selection Screen */
+        #user-select {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #user-select h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        #user-select p {
+            color: #888;
+            margin-bottom: 40px;
+        }
+
+        .user-buttons {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .user-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: #00d4ff;
+            transform: translateY(-5px);
+        }
+
+        .user-btn img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid #00d4ff;
+        }
+
+        .user-btn span {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        /* Chat Screen */
+        #chat-screen {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .chat-header img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
+        .chat-header-info h2 {
+            font-size: 1.1rem;
+            margin-bottom: 3px;
+        }
+
+        .chat-header-info .status {
+            font-size: 0.8rem;
+            color: #4ade80;
+        }
+
+        .typing-indicator {
+            font-size: 0.8rem;
+            color: #fbbf24;
+            font-style: italic;
+        }
+
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #7b2cbf, #9d4edd);
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.1);
+            border-bottom-left-radius: 5px;
+        }
+
+        .message .encoded {
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .message .decoded {
+            display: none;
+        }
+
+        .message.revealed .encoded {
+            display: none;
+        }
+
+        .message.revealed .decoded {
+            display: block;
+        }
+
+        .message .time {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .message-hint {
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .chat-input input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        .chat-input button {
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .chat-input button:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-input button svg {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+        }
+
+        /* Decode toggle */
+        .decode-toggle {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 8px 15px;
+            color: #fff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .decode-toggle.active {
+            background: #7b2cbf;
+        }
+    </style>
+</head>
+<body>
+    <!-- User Selection -->
+    <div id="user-select">
+        <h1>SonChat</h1>
+        <p>Select your identity</p>
+        <div class="user-buttons">
+            <div class="user-btn" onclick="selectUser('Dad')">
+                <img src="Dad.jpg" alt="Dad">
+                <span>Dad</span>
+            </div>
+            <div class="user-btn" onclick="selectUser('Jared')">
+                <img src="Jared.jpg" alt="Jared">
+                <span>Jared</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Screen -->
+    <div id="chat-screen">
+        <div class="chat-header">
+            <img id="other-avatar" src="" alt="">
+            <div class="chat-header-info">
+                <h2 id="other-name"></h2>
+                <div class="status" id="status-text">Online</div>
+            </div>
+        </div>
+
+        <div id="messages"></div>
+
+        <button class="decode-toggle" id="decode-toggle" onclick="toggleDecode()">
+            Show Decoded
+        </button>
+
+        <div class="chat-input">
+            <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off">
+            <button onclick="sendMessage()">
+                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let currentUser = null;
+        let otherUser = null;
+        let showDecoded = false;
+
+        // Encoding using katakana (from original)
+        const customEncoding = "ｻﾊｰ｢｣ﾂｴｦ･､ﾃｲﾔｪﾜｼﾝﾁﾄｸﾅﾈﾉｿﾀﾕﾞｽﾛﾘﾊﾝﾟｧｨｩｫｬｭｮｯｱｲｳｴｵ";
+
+        function encode(text) {
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+                const charCode = text.charCodeAt(i);
+                if (charCode >= 97 && charCode <= 122) {
+                    result += customEncoding[charCode - 97];
+                } else if (charCode >= 65 && charCode <= 90) {
+                    result += customEncoding[charCode - 65];
+                } else {
+                    result += text[i];
+                }
+            }
+            return result;
+        }
+
+        function decode(encodedText, originalText) {
+            // We store original with message, so just return it
+            return originalText;
+        }
+
+        function selectUser(user) {
+            currentUser = user;
+            otherUser = user === 'Dad' ? 'Jared' : 'Dad';
+
+            document.getElementById('user-select').style.display = 'none';
+            document.getElementById('chat-screen').style.display = 'flex';
+            document.getElementById('other-avatar').src = otherUser + '.jpg';
+            document.getElementById('other-name').textContent = otherUser;
+
+            // Focus input
+            document.getElementById('message-input').focus();
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function addMessage(msg, prepend = false) {
+            const messagesDiv = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = 'message ' + (msg.user === currentUser ? 'sent' : 'received');
+
+            div.innerHTML = `
+                <div class="encoded">${msg.encoded}</div>
+                <div class="decoded">${msg.text}</div>
+                <div class="time">${formatTime(msg.timestamp)}</div>
+            `;
+
+            div.onclick = () => div.classList.toggle('revealed');
+
+            if (showDecoded) {
+                div.classList.add('revealed');
+            }
+
+            if (prepend) {
+                messagesDiv.insertBefore(div, messagesDiv.firstChild);
+            } else {
+                messagesDiv.appendChild(div);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            const encoded = encode(text);
+
+            socket.emit('message', {
+                user: currentUser,
+                text: text,
+                encoded: encoded
+            });
+
+            input.value = '';
+            socket.emit('stop-typing');
+        }
+
+        function toggleDecode() {
+            showDecoded = !showDecoded;
+            const btn = document.getElementById('decode-toggle');
+            btn.textContent = showDecoded ? 'Show Encoded' : 'Show Decoded';
+            btn.classList.toggle('active', showDecoded);
+
+            document.querySelectorAll('.message').forEach(msg => {
+                msg.classList.toggle('revealed', showDecoded);
+            });
+        }
+
+        // Socket events
+        socket.on('history', (messages) => {
+            messages.forEach(msg => addMessage(msg));
+        });
+
+        socket.on('message', (msg) => {
+            addMessage(msg);
+        });
+
+        socket.on('typing', (user) => {
+            if (user !== currentUser) {
+                document.getElementById('status-text').innerHTML =
+                    '<span class="typing-indicator">' + user + ' is typing...</span>';
+            }
+        });
+
+        socket.on('stop-typing', () => {
+            document.getElementById('status-text').textContent = 'Online';
+        });
+
+        // Input handling
+        document.getElementById('message-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            } else {
+                socket.emit('typing', currentUser);
+            }
+        });
+
+        // Stop typing after pause
+        let typingTimeout;
+        document.getElementById('message-input').addEventListener('input', () => {
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                socket.emit('stop-typing');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
