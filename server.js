@@ -93,6 +93,7 @@ io.on('connection', (socket) => {
       user: data.user,
       text: data.text,
       encoded: data.encoded,
+      image: data.image || null, // Support for images
       timestamp: new Date().toISOString()
     };
 

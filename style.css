@@ -355,6 +355,15 @@ body {
     text-align: right;
 }
 
+.message-image {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    display: block;
+    cursor: pointer;
+}
+
 /* Announcements */
 .announcement {
     align-self: center;
@@ -395,6 +404,29 @@ body {
 
 .chat-input input::placeholder {
     color: rgba(255,255,255,0.4);
+}
+
+.upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+}
+
+.upload-btn:hover {
+    background: rgba(255,255,255,0.1);
+    transform: scale(1.1);
+}
+
+.upload-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: #00d4ff;
 }
 
 .chat-input button {
