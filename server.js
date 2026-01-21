@@ -46,7 +46,25 @@ io.on('connection', (socket) => {
   socket.emit('history', messages);
 
   // Handle user joining with their name
-  socket.on('join', (username) => {
+  socket.on('join', (data) => {
+    // Handle both old client style (string) and new style (object)
+    const username = typeof data === 'string' ? data : data.username;
+    const password = typeof data === 'object' ? data.password : null;
+
+    // Simple Authentication
+    const DAD_PASS = process.env.DAD_PASS || 'secret123';
+    const JARED_PASS = process.env.JARED_PASS || 'secret123';
+
+    if (username === 'Dad' && password !== DAD_PASS) {
+      socket.emit('auth-error', 'Incorrect password for Dad');
+      return;
+    }
+    
+    if (username === 'Jared' && password !== JARED_PASS) {
+      socket.emit('auth-error', 'Incorrect password for Jared');
+      return;
+    }
+
     socket.username = username;
     onlineUsers.set(socket.id, username);
     console.log('User joined:', username);
