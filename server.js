@@ -31,11 +31,42 @@ app.get('/', (req, res) => {
 const messages = [];
 const MAX_MESSAGES = 100;
 
+// Track online users: { odID: username }
+const onlineUsers = new Map();
+
+function broadcastUserList() {
+  const users = Array.from(onlineUsers.values());
+  io.emit('user-list', users);
+}
+
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+  console.log('Socket connected:', socket.id);
 
   // Send message history to new connections
   socket.emit('history', messages);
+
+  // Handle user joining with their name
+  socket.on('join', (username) => {
+    socket.username = username;
+    onlineUsers.set(socket.id, username);
+    console.log('User joined:', username);
+
+    // Broadcast join announcement
+    const announcement = {
+      id: Date.now(),
+      type: 'announcement',
+      text: `${username} has joined the channel`,
+      timestamp: new Date().toISOString()
+    };
+    messages.push(announcement);
+    if (messages.length > MAX_MESSAGES) {
+      messages.shift();
+    }
+    io.emit('announcement', announcement);
+
+    // Send updated user list
+    broadcastUserList();
+  });
 
   // Handle new messages
   socket.on('message', (data) => {
@@ -66,7 +97,27 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+    const username = socket.username;
+    if (username) {
+      onlineUsers.delete(socket.id);
+      console.log('User left:', username);
+
+      // Broadcast leave announcement
+      const announcement = {
+        id: Date.now(),
+        type: 'announcement',
+        text: `${username} has left the channel`,
+        timestamp: new Date().toISOString()
+      };
+      messages.push(announcement);
+      if (messages.length > MAX_MESSAGES) {
+        messages.shift();
+      }
+      io.emit('announcement', announcement);
+
+      // Send updated user list
+      broadcastUserList();
+    }
   });
 });
 
